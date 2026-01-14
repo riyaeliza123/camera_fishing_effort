@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload - Camera Fishing Effort</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎣 Camera Fishing Effort</h1>
+            <p class="subtitle">Upload an image for analysis</p>
+        </header>
+
+        <main>
+            <div class="upload-section">
+                <form 
+                    hx-post="/upload" 
+                    hx-target="#result" 
+                    hx-encoding="multipart/form-data"
+                    hx-indicator="#loading"
+                >
+                    <div class="file-input-wrapper">
+                        <label for="image" class="file-label">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                            <span class="file-label-text">Choose an image</span>
+                        </label>
+                        <input 
+                            type="file" 
+                            name="image" 
+                            id="image" 
+                            accept="image/*" 
+                            required
+                            class="file-input"
+                        >
+                    </div>
+                    <button type="submit" class="upload-btn">
+                        Upload Image
+                    </button>
+                </form>
+
+                <div id="loading" class="htmx-indicator">
+                    <div class="spinner"></div>
+                    <p>Processing image...</p>
+                </div>
+            </div>
+
+            <div id="result" class="result-section">
+                <!-- Image preview will appear here -->
+            </div>
+        </main>
+
+        <footer>
+            <p>Ready for Roboflow model integration</p>
+        </footer>
+    </div>
+
+    <script>
+        // Show selected filename
+        document.getElementById('image').addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name;
+            if (fileName) {
+                document.querySelector('.file-label-text').textContent = fileName;
+            }
+        });
+    </script>
+</body>
+</html>
