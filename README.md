@@ -1,0 +1,1 @@
+# camera_fishing_effort
