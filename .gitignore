@@ -11,9 +11,6 @@ build/
 dist/
 *.egg-info/
 
-# Uploaded files
-static/uploads/
-
 # IDE
 .vscode/
 .idea/

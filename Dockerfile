@@ -9,9 +9,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application
 COPY . .
 
-# Create uploads directory
-RUN mkdir -p static/uploads
-
 # Expose port
 EXPOSE 8080
 
