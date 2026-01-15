@@ -165,8 +165,82 @@ form {
 
 .image-preview h2 {
     color: #2ecc71;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     font-size: 1.5rem;
+}
+
+.preview-subtitle {
+    color: #888;
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+}
+
+.images-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    margin: 20px 0;
+}
+
+.image-item {
+    background: #f9f9f9;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.image-item:hover {
+    transform: translateY(-3px);
+}
+
+.image-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.image-number {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+.image-item .filename {
+    color: #667eea;
+    font-weight: 600;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+}
+
+.image-status {
+    margin-top: 12px;
+    text-align: center;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.status-badge.pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-badge.complete {
+    background: #d4edda;
+    color: #155724;
 }
 
 .filename {

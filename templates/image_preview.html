@@ -1,13 +1,26 @@
 <div class="image-preview">
-    <h2>✅ Image Uploaded Successfully</h2>
-    <p class="filename">Filename: {{ filename }}</p>
-    <div class="image-container">
-        <img src="{{ image_url }}" alt="Uploaded image">
+    <h2>✅ {{ count }} Image{{ 's' if count > 1 else '' }} Uploaded Successfully</h2>
+    <p class="preview-subtitle">Images are displayed in upload order. Model inference coming soon.</p>
+    <div class="images-grid">
+        {% for image in images %}
+        <div class="image-item">
+            <div class="image-header">
+                <span class="image-number">#{{ loop.index }}</span>
+                <p class="filename">{{ image.filename }}</p>
+            </div>
+            <div class="image-container">
+                <img src="{{ image.url }}" alt="{{ image.filename }}">
+            </div>
+            <div class="image-status">
+                <span class="status-badge pending">⏳ Awaiting inference</span>
+            </div>
+        </div>
+        {% endfor %}
     </div>
     <div class="actions">
-        <button onclick="location.reload()" class="secondary-btn">Upload Another Image</button>
+        <button onclick="location.reload()" class="secondary-btn">Upload More Images</button>
     </div>
     <div class="info-box">
-        <p>🔮 Model inference will be integrated here using Roboflow</p>
+        <p>🔮 Next step: Send images to Roboflow model and display annotated results</p>
     </div>
 </div>
