@@ -17,6 +17,31 @@
         </div>
         {% endfor %}
     </div>
+    
+    <!-- Data Table from Python DataFrame -->
+    <div class="data-table-section">
+        <h3>📊 Image Data</h3>
+        <table class="data-table" id="image-data-table">
+            <thead>
+                <tr>
+                    {% for col in df_columns %}
+                    <th>{{ col }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in df_records %}
+                <tr>
+                    {% for col in df_columns %}
+                    <td>{{ row[col] }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="/download-csv" class="download-btn">📥 Download as CSV</a>
+    </div>
+    
     <div class="actions">
         <button onclick="location.reload()" class="secondary-btn">Upload More Images</button>
     </div>
