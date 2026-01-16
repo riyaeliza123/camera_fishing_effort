@@ -16,6 +16,18 @@
         <main>
             <div class="upload-section">
                 <form id="upload-form" enctype="multipart/form-data">
+                    <div class="location-input-wrapper">
+                        <label for="location" class="input-label">📍 Location</label>
+                        <input 
+                            type="text" 
+                            name="location" 
+                            id="location" 
+                            placeholder="Enter fishing location..."
+                            required
+                            class="text-input"
+                        >
+                    </div>
+                    
                     <div class="file-input-wrapper">
                         <label for="files" class="file-label">
                             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -75,6 +87,10 @@
             
             const formData = new FormData();
             const fileInput = document.getElementById('files');
+            const locationInput = document.getElementById('location');
+            
+            // Add location to FormData
+            formData.append('location', locationInput.value);
             
             // Add each file to FormData
             for (let i = 0; i < fileInput.files.length; i++) {

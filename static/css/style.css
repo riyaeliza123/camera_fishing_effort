@@ -54,6 +54,38 @@ form {
     gap: 20px;
 }
 
+.location-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.text-input {
+    padding: 15px 20px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #f9fbff;
+}
+
+.text-input:focus {
+    outline: none;
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+.text-input::placeholder {
+    color: #aaa;
+}
+
 .file-input-wrapper {
     position: relative;
 }

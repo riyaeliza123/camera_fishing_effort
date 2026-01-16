@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile, Request
+from fastapi import FastAPI, File, UploadFile, Request, Form
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -26,9 +26,14 @@ async def test():
 
 
 @app.post("/upload")
-async def upload_images(request: Request, files: List[UploadFile] = File(...)):
+async def upload_images(
+    request: Request, 
+    location: str = Form(...),
+    files: List[UploadFile] = File(...)
+):
     """Handle multiple image uploads and return the image previews"""
-    print(f"Received {len(files)} files")  # Debug log
+    print(f"Location: {location}")  # Debug log
+    print(f"Received {len(files)} files")
     
     uploaded_images = []
     
@@ -52,7 +57,8 @@ async def upload_images(request: Request, files: List[UploadFile] = File(...)):
         {
             "request": request,
             "images": uploaded_images,
-            "count": len(uploaded_images)
+            "count": len(uploaded_images),
+            "location": location
         }
     )
 
