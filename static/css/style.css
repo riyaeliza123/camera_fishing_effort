@@ -361,8 +361,8 @@ form {
 }
 
 .data-table th {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: #a8c0e8;
+    color: #333;
     font-weight: 600;
     font-size: 0.9rem;
 }
@@ -377,20 +377,23 @@ form {
 }
 
 .download-btn {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    color: white;
-    border: none;
+    background: white;
+    color: #667eea;
+    border: 2px solid #667eea;
     padding: 12px 25px;
     border-radius: 10px;
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
 }
 
 .download-btn:hover {
+    background: #667eea;
+    color: white;
     transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(40, 167, 69, 0.4);
 }
 
 footer {
