@@ -42,6 +42,30 @@ def extract_datetime_from_image(image_bytes: bytes) -> tuple:
     return ("N/A", "N/A")
 
 
+def resize_image_for_display(image_bytes: bytes, max_size: int = 800) -> bytes:
+    """Resize image for display to reduce memory usage"""
+    try:
+        img = Image.open(BytesIO(image_bytes))
+        
+        # Calculate new size maintaining aspect ratio
+        ratio = min(max_size / img.width, max_size / img.height)
+        if ratio < 1:  # Only resize if image is larger than max_size
+            new_size = (int(img.width * ratio), int(img.height * ratio))
+            img = img.resize(new_size, Image.Resampling.LANCZOS)
+        
+        # Convert to RGB if necessary (for PNG with transparency)
+        if img.mode in ('RGBA', 'P'):
+            img = img.convert('RGB')
+        
+        # Save to bytes
+        output = BytesIO()
+        img.save(output, format='JPEG', quality=85)
+        return output.getvalue()
+    except Exception as e:
+        print(f"Error resizing image: {e}")
+        return image_bytes  # Return original if resize fails
+
+
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     """Render the main page"""
@@ -63,58 +87,78 @@ async def upload_images(
     """Handle multiple image uploads and return the image previews"""
     global latest_df
     
-    print(f"Location: {location}")  # Debug log
-    print(f"Received {len(files)} files")
-    
-    uploaded_images = []
-    df_data = []
-    
-    for idx, img in enumerate(files, start=1):
-        if img.filename:
-            # Read file content
-            contents = await img.read()
-            
-            # Extract date and time from EXIF
-            image_date, image_time = extract_datetime_from_image(contents)
-            
-            # Convert to base64 data URL for display
-            base64_data = base64.b64encode(contents).decode('utf-8')
-            content_type = img.content_type or 'image/jpeg'
-            data_url = f"data:{content_type};base64,{base64_data}"
-            
-            print(f"  - {img.filename}, size: {len(contents)} bytes, date: {image_date}, time: {image_time}")
-            
-            uploaded_images.append({
-                "url": data_url,
-                "filename": img.filename
-            })
-            
-            # Build DataFrame row
-            df_data.append({
-                "Sl No": idx,
-                "Image Name": img.filename,
-                "Location": location,
-                "Date": image_date,
-                "Time": image_time,
-                "Count": "Pending"  # Placeholder for Roboflow inference
-            })
-    
-    # Create DataFrame
-    latest_df = pd.DataFrame(df_data)
-    print("\nDataFrame:")
-    print(latest_df.to_string())
-    
-    return templates.TemplateResponse(
-        "image_preview.html",
-        {
-            "request": request,
-            "images": uploaded_images,
-            "count": len(uploaded_images),
-            "location": location,
-            "df_records": latest_df.to_dict('records'),
-            "df_columns": latest_df.columns.tolist()
-        }
-    )
+    try:
+        print(f"Location: {location}")  # Debug log
+        print(f"Received {len(files)} files")
+        
+        uploaded_images = []
+        df_data = []
+        
+        for idx, img in enumerate(files, start=1):
+            if img.filename:
+                # Read file content
+                contents = await img.read()
+                
+                # Extract date and time from EXIF (with fallback)
+                try:
+                    image_date, image_time = extract_datetime_from_image(contents)
+                except Exception as e:
+                    print(f"EXIF extraction failed for {img.filename}: {e}")
+                    image_date, image_time = "N/A", "N/A"
+                
+                # Resize image for display to reduce memory
+                resized_contents = resize_image_for_display(contents)
+                
+                # Convert to base64 data URL for display
+                base64_data = base64.b64encode(resized_contents).decode('utf-8')
+                data_url = f"data:image/jpeg;base64,{base64_data}"
+                
+                # Free up memory
+                del contents
+                del resized_contents
+                
+                print(f"  - {img.filename}, date: {image_date}, time: {image_time}")
+                
+                uploaded_images.append({
+                    "url": data_url,
+                    "filename": img.filename
+                })
+                
+                # Build DataFrame row
+                df_data.append({
+                    "Sl No": idx,
+                    "Image Name": img.filename,
+                    "Location": location,
+                    "Date": image_date,
+                    "Time": image_time,
+                    "Count": "Pending"  # Placeholder for Roboflow inference
+                })
+        
+        # Create DataFrame
+        latest_df = pd.DataFrame(df_data)
+        print("\nDataFrame:")
+        print(latest_df.to_string())
+        
+        return templates.TemplateResponse(
+            "image_preview.html",
+            {
+                "request": request,
+                "images": uploaded_images,
+                "count": len(uploaded_images),
+                "location": location,
+                "df_records": latest_df.to_dict('records'),
+                "df_columns": latest_df.columns.tolist()
+            }
+        )
+    except Exception as e:
+        print(f"Upload error: {e}")
+        import traceback
+        traceback.print_exc()
+        from fastapi.responses import JSONResponse
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
+        )
 
 
 @app.get("/download-csv")
