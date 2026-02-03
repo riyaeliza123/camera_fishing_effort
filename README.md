@@ -1,5 +1,7 @@
 # 🎣 Camera Fishing Effort
 
+# IN PROGRESS
+
 A FastAPI + Jinja2 web application for uploading fishing camera images, extracting metadata, and preparing data for analysis.
 
 ## 🌐 Live Demo

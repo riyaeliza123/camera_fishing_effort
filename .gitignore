@@ -24,4 +24,4 @@ Thumbs.db
 # Environment variables
 .env
 # Image folders
-img/
+notebooks/img/
