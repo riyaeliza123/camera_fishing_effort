@@ -2,6 +2,9 @@ FROM python:3.11-slim-bullseye
 
 WORKDIR /app
 
+# Install PyTorch CPU first (before other packages that depend on it)
+RUN pip install --no-cache-dir torch==2.0.1 --index-url https://download.pytorch.org/whl/cpu
+
 # Copy requirements first for better caching
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt

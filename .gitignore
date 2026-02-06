@@ -23,5 +23,7 @@ Thumbs.db
 
 # Environment variables
 .env
+
 # Image folders
 notebooks/img/
+*.pt
