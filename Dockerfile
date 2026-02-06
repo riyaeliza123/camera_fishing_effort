@@ -2,12 +2,13 @@ FROM python:3.11-slim-bullseye
 
 WORKDIR /app
 
-# Install PyTorch CPU first (before other packages that depend on it)
-RUN pip install --no-cache-dir torch==2.0.1 --index-url https://download.pytorch.org/whl/cpu
-
 # Copy requirements first for better caching
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+
+# Install PyTorch CPU and ultralytics together so pip can resolve dependencies
+RUN pip install --no-cache-dir torch==2.0.1 --index-url https://download.pytorch.org/whl/cpu && \
+    pip install --no-cache-dir ultralytics>=8.0.0 && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application (exclude heavy notebook files)
 COPY main.py .
