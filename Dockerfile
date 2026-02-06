@@ -6,11 +6,11 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the model weights
-COPY notebooks/runs/detect/chokepoint_finetuned/train/weights/best.pt ./notebooks/runs/detect/chokepoint_finetuned/train/weights/
-
-# Copy the rest of the application
-COPY . .
+# Copy the rest of the application (exclude heavy notebook files)
+COPY main.py .
+COPY static/ ./static/
+COPY templates/ ./templates/
+COPY .github/ ./.github/
 
 # Expose port
 EXPOSE 8080

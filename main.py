@@ -19,20 +19,40 @@ from io import BytesIO
 from PIL import Image
 from PIL.ExifTags import TAGS
 from datetime import datetime
+import urllib.request
 
 app = FastAPI()
 
+# Download model weights from GitHub if not available locally
+MODEL_PATH = "best.pt"
+GITHUB_MODEL_URL = "https://raw.githubusercontent.com/riyaeliza123/camera_fishing_effort/main/notebooks/runs/detect/chokepoint_finetuned/train/weights/best.pt"
+
+def download_model_weights(url: str, local_path: str) -> bool:
+    """Download model weights from GitHub"""
+    try:
+        print(f"Downloading model weights from {url}...")
+        urllib.request.urlretrieve(url, local_path)
+        print(f"Model weights downloaded successfully to {local_path}")
+        return True
+    except Exception as e:
+        print(f"Error downloading model weights: {e}")
+        return False
+
 # Load YOLOv8 model weights once
-MODEL_PATH = "notebooks/runs/detect/chokepoint_finetuned/train/weights/best.pt"
 model_trained = None
 try:
-    if os.path.exists(MODEL_PATH):
-        model_trained = YOLO(MODEL_PATH)
+    # Try to load local model, if not found, download from GitHub
+    if not os.path.exists(MODEL_PATH):
+        print(f"Model not found locally. Attempting to download from GitHub...")
+        if download_model_weights(GITHUB_MODEL_URL, MODEL_PATH):
+            model_trained = YOLO(MODEL_PATH)
+        else:
+            raise Exception("Failed to download model from GitHub")
     else:
-        print(f"Warning: Model weights not found at {MODEL_PATH}. Using default yolov8n model.")
-        model_trained = YOLO('yolov8n.pt')
+        model_trained = YOLO(MODEL_PATH)
+    print("Fine-tuned YOLOv8 model loaded successfully")
 except Exception as e:
-    print(f"Error loading model: {e}. Using default yolov8n model.")
+    print(f"Error loading fine-tuned model: {e}. Falling back to default yolov8n model.")
     model_trained = YOLO('yolov8n.pt')
 class_names = ['in', 'out']
 
