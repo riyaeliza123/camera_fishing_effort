@@ -126,7 +126,7 @@ async def test():
 async def upload_images(
     request: Request,
     location: str = Form(...),
-    files: list = File(...)
+    files: List[UploadFile] = File(...)
 ):
     """Handle multiple image uploads, run YOLOv8 inference, annotate images, and return table with counts."""
     global latest_df
