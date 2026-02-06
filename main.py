@@ -24,7 +24,16 @@ app = FastAPI()
 
 # Load YOLOv8 model weights once
 MODEL_PATH = "notebooks/runs/detect/chokepoint_finetuned/train/weights/best.pt"
-model_trained = YOLO(MODEL_PATH)
+model_trained = None
+try:
+    if os.path.exists(MODEL_PATH):
+        model_trained = YOLO(MODEL_PATH)
+    else:
+        print(f"Warning: Model weights not found at {MODEL_PATH}. Using default yolov8n model.")
+        model_trained = YOLO('yolov8n.pt')
+except Exception as e:
+    print(f"Error loading model: {e}. Using default yolov8n model.")
+    model_trained = YOLO('yolov8n.pt')
 class_names = ['in', 'out']
 
 # Mount static files and templates
