@@ -2,22 +2,23 @@ FROM python:3.11-slim-bullseye
 
 WORKDIR /app
 
-# Copy requirements first for better caching
+RUN apt-get update && apt-get install -y \
+    libgl1 \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt .
+COPY constraints.txt .
 
-# Install PyTorch CPU and ultralytics together so pip can resolve dependencies
-RUN pip install --no-cache-dir torch==2.0.1 --index-url https://download.pytorch.org/whl/cpu && \
-    pip install --no-cache-dir ultralytics>=8.0.0 && \
-    pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip \
+    && pip install --no-cache-dir \
+        -r requirements.txt \
+        -c constraints.txt \
+        --extra-index-url https://download.pytorch.org/whl/cpu
 
-# Copy the rest of the application (exclude heavy notebook files)
 COPY main.py .
 COPY static/ ./static/
 COPY templates/ ./templates/
-COPY .github/ ./.github/
 
-# Expose port
 EXPOSE 8080
-
-# Run the application
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]

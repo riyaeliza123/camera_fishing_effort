@@ -130,6 +130,7 @@ async def upload_images(
 ):
     """Handle multiple image uploads, run YOLOv8 inference, annotate images, and return table with counts."""
     global latest_df
+    CONFIDENCE_THRESHOLD = 0.05
     try:
         uploaded_images = []
         df_data = []
@@ -143,21 +144,32 @@ async def upload_images(
                 img_stretched.save(temp_path, format="JPEG")
                 # Run YOLOv8 inference
                 results = model_trained(temp_path)
+                
+                # Extract predictions with confidence filtering
                 pred_classes = results[0].boxes.cls.cpu().numpy().astype(int) if results[0].boxes is not None else []
+                pred_boxes = results[0].boxes.xyxy.cpu().numpy() if results[0].boxes is not None else []
+                pred_conf = results[0].boxes.conf.cpu().numpy() if results[0].boxes is not None else []
+                
+                # Filter by confidence threshold
+                filtered_indices = [i for i in range(len(pred_conf)) if pred_conf[i] >= CONFIDENCE_THRESHOLD]
+                pred_classes = pred_classes[filtered_indices] if len(filtered_indices) > 0 else []
+                pred_boxes = pred_boxes[filtered_indices] if len(filtered_indices) > 0 else []
+                pred_conf = pred_conf[filtered_indices] if len(filtered_indices) > 0 else []
+                
                 # Count 'in' and 'out'
                 in_count = sum(1 for c in pred_classes if c == 0)
                 out_count = sum(1 for c in pred_classes if c == 1)
+                
                 # Annotate image
                 img_pil = Image.open(temp_path)
                 plt.figure(figsize=(6,6))
                 plt.imshow(img_pil)
                 ax = plt.gca()
-                pred_boxes = results[0].boxes.xyxy.cpu().numpy() if results[0].boxes is not None else []
-                for box, cls in zip(pred_boxes, pred_classes):
+                for box, cls, conf in zip(pred_boxes, pred_classes, pred_conf):
                     x1, y1, x2, y2 = box
                     rect = plt.Rectangle((x1, y1), x2-x1, y2-y1, fill=False, color='lime', linewidth=1)
                     ax.add_patch(rect)
-                    ax.text(x1, y1 - 2, class_names[cls], color='white', fontsize=8, va='bottom', ha='left', bbox=dict(facecolor='black', alpha=0.5, edgecolor='none', pad=0))
+                    ax.text(x1, y1 - 2, f"{class_names[cls]} ({conf:.2f})", color='white', fontsize=8, va='bottom', ha='left', bbox=dict(facecolor='black', alpha=0.5, edgecolor='none', pad=0))
                 plt.axis('off')
                 plt.title(f'Predictions: {os.path.basename(temp_path)}')
                 # Save annotated image to buffer
