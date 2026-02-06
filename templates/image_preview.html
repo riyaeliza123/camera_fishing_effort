@@ -12,7 +12,7 @@
                 <img src="{{ image.url }}" alt="{{ image.filename }}">
             </div>
             <div class="image-status">
-                <span class="status-badge pending">⏳ Awaiting inference</span>
+                <p class="status-text">✅ Processed</p>
             </div>
         </div>
         {% endfor %}
@@ -44,8 +44,5 @@
     
     <div class="actions">
         <button onclick="location.reload()" class="secondary-btn">Upload More Images</button>
-    </div>
-    <div class="info-box">
-        <p>🔮 Next step: Send images to Roboflow model and display annotated results</p>
     </div>
 </div>

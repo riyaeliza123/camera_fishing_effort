@@ -1,4 +1,13 @@
 from fastapi import FastAPI, File, UploadFile, Request, Form
+from fastapi.responses import StreamingResponse
+import io
+import base64
+from PIL import Image
+import pandas as pd
+from ultralytics import YOLO
+import torch
+import matplotlib.pyplot as plt
+import os
 from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -12,6 +21,11 @@ from PIL.ExifTags import TAGS
 from datetime import datetime
 
 app = FastAPI()
+
+# Load YOLOv8 model weights once
+MODEL_PATH = "notebooks/runs/detect/chokepoint_finetuned/train/weights/best.pt"
+model_trained = YOLO(MODEL_PATH)
+class_names = ['in', 'out']
 
 # Mount static files and templates
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -78,52 +92,62 @@ async def test():
     return {"status": "ok"}
 
 
+
 @app.post("/upload")
 async def upload_images(
-    request: Request, 
+    request: Request,
     location: str = Form(...),
-    files: List[UploadFile] = File(...)
+    files: list = File(...)
 ):
-    """Handle multiple image uploads and return the image previews"""
+    """Handle multiple image uploads, run YOLOv8 inference, annotate images, and return table with counts."""
     global latest_df
-    
     try:
-        print(f"Location: {location}")  # Debug log
-        print(f"Received {len(files)} files")
-        
         uploaded_images = []
         df_data = []
-        
         for idx, img in enumerate(files, start=1):
             if img.filename:
-                # Read file content
                 contents = await img.read()
-                
+                # Stretch image to 640x640 before inference
+                img_pil = Image.open(BytesIO(contents))
+                img_stretched = img_pil.resize((640, 640), Image.Resampling.LANCZOS)
+                temp_path = f"temp_{img.filename}"
+                img_stretched.save(temp_path, format="JPEG")
+                # Run YOLOv8 inference
+                results = model_trained(temp_path)
+                pred_classes = results[0].boxes.cls.cpu().numpy().astype(int) if results[0].boxes is not None else []
+                # Count 'in' and 'out'
+                in_count = sum(1 for c in pred_classes if c == 0)
+                out_count = sum(1 for c in pred_classes if c == 1)
+                # Annotate image
+                img_pil = Image.open(temp_path)
+                plt.figure(figsize=(6,6))
+                plt.imshow(img_pil)
+                ax = plt.gca()
+                pred_boxes = results[0].boxes.xyxy.cpu().numpy() if results[0].boxes is not None else []
+                for box, cls in zip(pred_boxes, pred_classes):
+                    x1, y1, x2, y2 = box
+                    rect = plt.Rectangle((x1, y1), x2-x1, y2-y1, fill=False, color='lime', linewidth=1)
+                    ax.add_patch(rect)
+                    ax.text(x1, y1 - 2, class_names[cls], color='white', fontsize=8, va='bottom', ha='left', bbox=dict(facecolor='black', alpha=0.5, edgecolor='none', pad=0))
+                plt.axis('off')
+                plt.title(f'Predictions: {os.path.basename(temp_path)}')
+                # Save annotated image to buffer
+                buf = io.BytesIO()
+                plt.savefig(buf, format='jpeg', bbox_inches='tight', pad_inches=0)
+                plt.close()
+                buf.seek(0)
+                base64_data = base64.b64encode(buf.read()).decode('utf-8')
+                data_url = f"data:image/jpeg;base64,{base64_data}"
+                uploaded_images.append({
+                    "url": data_url,
+                    "filename": img.filename
+                })
                 # Extract date and time from EXIF (with fallback)
                 try:
                     image_date, image_time = extract_datetime_from_image(contents)
                 except Exception as e:
                     print(f"EXIF extraction failed for {img.filename}: {e}")
                     image_date, image_time = "N/A", "N/A"
-                
-                # Resize image for display to reduce memory
-                resized_contents = resize_image_for_display(contents)
-                
-                # Convert to base64 data URL for display
-                base64_data = base64.b64encode(resized_contents).decode('utf-8')
-                data_url = f"data:image/jpeg;base64,{base64_data}"
-                
-                # Free up memory
-                del contents
-                del resized_contents
-                
-                print(f"  - {img.filename}, date: {image_date}, time: {image_time}")
-                
-                uploaded_images.append({
-                    "url": data_url,
-                    "filename": img.filename
-                })
-                
                 # Build DataFrame row
                 df_data.append({
                     "Sl No": idx,
@@ -131,14 +155,12 @@ async def upload_images(
                     "Location": location,
                     "Date": image_date,
                     "Time": image_time,
-                    "Count": "Pending"  # Placeholder for Roboflow inference
+                    "In": in_count,
+                    "Out": out_count
                 })
-        
-        # Create DataFrame
+                # Clean up temp file
+                os.remove(temp_path)
         latest_df = pd.DataFrame(df_data)
-        print("\nDataFrame:")
-        print(latest_df.to_string())
-        
         return templates.TemplateResponse(
             "image_preview.html",
             {
