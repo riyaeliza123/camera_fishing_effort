@@ -1,7 +1,7 @@
 task: detect
 mode: train
 model: runs/detect/chokepoint/train/weights/best.pt
-data: boat_data.yaml
+data: chokepoint.yaml
 epochs: 20
 time: null
 patience: 5

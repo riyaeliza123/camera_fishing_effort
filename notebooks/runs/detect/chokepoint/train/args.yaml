@@ -1,7 +1,7 @@
 task: detect
 mode: train
 model: yolov8n.pt
-data: boat_data.yaml
+data: chokepoint.yaml
 epochs: 50
 time: null
 patience: 10
