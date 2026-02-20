@@ -21,9 +21,12 @@ dist/
 .DS_Store
 Thumbs.db
 
-# Environment variables
+# Configuration files (local secrets)
+config.toml
 .env
+.env.local
 
 # Image folders
 notebooks/img/
 *.pt
+temp_*

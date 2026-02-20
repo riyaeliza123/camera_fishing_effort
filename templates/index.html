@@ -28,6 +28,20 @@
                         >
                     </div>
                     
+                    <div class="model-select-wrapper">
+                        <label for="model_type" class="input-label">🤖 Detection Model</label>
+                        <select 
+                            name="model_type" 
+                            id="model_type" 
+                            required
+                            class="text-input"
+                        >
+                            <option value="">-- Select a model --</option>
+                            <option value="chokepoint">Chokepoint (In/Out Detection)</option>
+                            <option value="fishing">Fishing (Boat Detection)</option>
+                        </select>
+                    </div>
+                    
                     <div class="file-input-wrapper">
                         <label for="files" class="file-label">
                             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -47,7 +61,7 @@
                             class="file-input"
                         >
                     </div>
-                    <button type="submit" class="upload-btn">
+                    <button type="submit" class="upload-btn" id="upload-btn">
                         Upload Images
                     </button>
                 </form>
@@ -68,6 +82,15 @@
     </div>
 
     <script>
+        // Disable upload button until model is selected
+        const uploadBtn = document.getElementById('upload-btn');
+        const modelSelect = document.getElementById('model_type');
+        
+        uploadBtn.disabled = true;
+        modelSelect.addEventListener('change', function() {
+            uploadBtn.disabled = !this.value;
+        });
+        
         // Show selected filenames/count
         document.getElementById('files').addEventListener('change', function(e) {
             const fileCount = e.target.files.length;
@@ -87,9 +110,11 @@
             const formData = new FormData();
             const fileInput = document.getElementById('files');
             const locationInput = document.getElementById('location');
+            const modelInput = document.getElementById('model_type');
             
-            // Add location to FormData
+            // Add location and model to FormData
             formData.append('location', locationInput.value);
+            formData.append('model_type', modelInput.value);
             
             // Add each file to FormData
             for (let i = 0; i < fileInput.files.length; i++) {

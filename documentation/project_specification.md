@@ -1,6 +1,6 @@
 # Documentation
 
-This document contains definitions, expectations and hypothesis.
+This document contains goals, definitions and expectations.
 
 ## Goal of this project
 
@@ -61,13 +61,29 @@ Task: Binary existence detection
 - “Is there at least one `in` boat? If so, how many?”
 - “Is there at least one `out` boat? If so, how many?”
 
-Here, we **do not** care about exact bounding box quality and tight localization. Since there is always a trade-off between recall and precision, in this case recall > precision. 
+For this model, the exact position and size of the bounding box around a boat is less critical than simply detecting whether boats are present. A loosely drawn box is acceptable as long as the boat is identified.
 
-Recall here is more important because a missed boat = wrong decision.
+There is always a trade-off between recall and precision. We prioritize recall (catching all boats) over precision (perfect predictions) because:
+- **Missed boats have serious consequences**: If a boat enters or exits the monitoring area but our model fails to detect it, the count will be wrong and the fishing effort data will be inaccurate
+- **False positives are more tolerable**: If the model occasionally detects something that isn't a boat, it has less impact—the false count can be manually reviewed or filtered. The worst outcome is a slightly inflated count
 
 Expected metrics for this model are the following:
 
 - Recall >= 0.7
-- Precision >=0.3
+- Precision >= 0.3
 - mAP50 >= 0.5
-- mAP50-95 >= 0.15
+
+### 2. Fishing point model
+Task: Generic boat detection
+- "Is there at least one fishing boat in the image? If so, how many?"
+
+This model focuses on simple detection of any fishing boat without classification into categories. The goal is to identify the presence and count of boats engaged in fishing activity (stationary or active fishing).
+
+Here, recall is equally important as precision since both missed boats and false positives affect the fishing effort count. A balanced approach is necessary for reliable boat counting.
+
+Expected metrics for this model are the following:
+
+- Recall >= 0.65
+- Precision >= 0.65
+- mAP50 >= 0.6
+
