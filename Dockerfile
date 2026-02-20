@@ -17,6 +17,7 @@ RUN pip install --upgrade pip \
         --extra-index-url https://download.pytorch.org/whl/cpu
 
 COPY main.py .
+COPY scripts/ ./scripts/
 COPY static/ ./static/
 COPY templates/ ./templates/
 
