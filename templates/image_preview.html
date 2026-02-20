@@ -1,6 +1,6 @@
 <div class="image-preview">
-    <h2>✅ {{ count }} Image{{ 's' if count > 1 else '' }} Uploaded Successfully</h2>
-    <p class="preview-subtitle">📍 Location: <strong>{{ location }}</strong></p>
+    <h2>{{ count }} Image{{ 's' if count > 1 else '' }} Uploaded Successfully</h2>
+    <p class="preview-subtitle">Location: <strong>{{ location }}</strong></p>
     <div class="images-grid">
         {% for image in images %}
         <div class="image-item">

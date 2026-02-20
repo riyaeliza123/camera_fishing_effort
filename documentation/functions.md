@@ -1,4 +1,4 @@
-# Project Modularization 
+# Functions and scripts
 
 ## Overview
 The core of this project (model and its interface) has been modularized into logical, reusable modules within the `scripts/` folder. The main.py file now acts as a clean orchestrator, importing and calling modularized functions. This document contains explanations for each function in this project.
