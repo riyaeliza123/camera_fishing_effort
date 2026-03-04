@@ -28,7 +28,7 @@ For detailed information, see the documentation folder:
 - **[workflow.md](documentation/workflow.md)** - How to use the app and understand the data flow
 - **[YOLO.md](documentation/YOLO.md)** - Computer Vision, Neural networks, YOLOv8, and object detection explained
 - **[functions.md](documentation/functions.md)** - Project architecture and code organization
-- **[definitions_and_metrics.md](documentation\definitions_and_metrics.md)** - Defines terms, metrics and goals. Clarifies metrics and definition of success.
+- **[definitions_and_metrics.md](documentation/definitions_and_metrics.md)** - Defines terms, metrics and goals and clarifies metrics and definition of success
 
 ## Quick Start
 

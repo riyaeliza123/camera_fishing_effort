@@ -2,7 +2,7 @@ task: detect
 mode: train
 model: runs/detect/chokepoint/train/weights/best.pt
 data: chokepoint.yaml
-epochs: 20
+epochs: 40
 time: null
 patience: 5
 batch: 4
