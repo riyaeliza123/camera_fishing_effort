@@ -21,8 +21,8 @@ COPY scripts/ ./scripts/
 COPY static/ ./static/
 COPY templates/ ./templates/
 
-# Environment variable for Roboflow API key (set at deploy time)
-ENV ROBOFLOW_API_KEY=""
+# ROBOFLOW_API_KEY will be injected by Fly.io as a secret (see fly.toml for setup)
+# It will be available at runtime as an environment variable
 
 EXPOSE 8080
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
