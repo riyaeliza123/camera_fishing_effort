@@ -1,7 +1,7 @@
 # Fishing Effort Monitoring - Computer Vision Model
 A FastAPI web application for analyzing fishing camera images using AI-powered object detection. Upload images, automatically detect boats, and export results as CSV.
 
-## 🚀 Live Application
+## Live Application
 
 **Visit the Live App**: https://camera-fishing-effort.fly.dev
 
@@ -9,8 +9,8 @@ A FastAPI web application for analyzing fishing camera images using AI-powered o
 
 This project combines YOLOv8 deep learning models with a web interface to detect and count boats in fishing camera footage. It supports two detection modes:
 
-- **Chokepoint Mode**: Detects boats entering/exiting a specific location (In/Out counts)
-- **Fishing Mode**: Detects boats using Roboflow's fishing-access-points model
+- **Chokepoint Model**: Detects boats entering/exiting a specific location (In/Out counts)
+- **Fishing Model**: Detects boats using Roboflow's fishing-access-points model
 
 ### Key Features
 
