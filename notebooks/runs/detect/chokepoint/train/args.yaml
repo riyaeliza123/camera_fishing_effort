@@ -2,9 +2,9 @@ task: detect
 mode: train
 model: yolov8n.pt
 data: chokepoint.yaml
-epochs: 200
+epochs: 100
 time: null
-patience: 50
+patience: 10
 batch: 4
 imgsz: 320
 save: true
