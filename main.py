@@ -39,7 +39,11 @@ latest_df = None
 async def home(request: Request):
     """Render the main page"""
     try:
-        return templates.TemplateResponse("index.html", {"request": request})
+        return templates.TemplateResponse(
+            request=request,
+            name="index.html",
+            context={"request": request},
+        )
     except Exception as e:
         print(f"Template render error on /: {e}")
         return HTMLResponse(
@@ -131,8 +135,9 @@ async def upload_images(
         
         latest_df = create_dataframe(df_data)
         return templates.TemplateResponse(
-            "image_preview.html",
-            {
+            request=request,
+            name="image_preview.html",
+            context={
                 "request": request,
                 "images": uploaded_images,
                 "count": len(uploaded_images),
@@ -140,7 +145,7 @@ async def upload_images(
                 "model_type": model_type,
                 "df_records": latest_df.to_dict('records'),
                 "df_columns": latest_df.columns.tolist()
-            }
+            },
         )
     except Exception as e:
         print(f"Upload error: {e}")
