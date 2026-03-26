@@ -1,7 +1,7 @@
 """Constants for the application."""
 
 # Model paths and URLs
-MODEL_PATH = "notebooks/runs/detect/chokepoint_finetuned/train/weights/best.pt"
+MODEL_PATH = "best.pt"
 GITHUB_MODEL_URL = "https://raw.githubusercontent.com/riyaeliza123/camera_fishing_effort/main/notebooks/runs/detect/chokepoint_finetuned/train/weights/best.pt"
 
 # Confidence thresholds

@@ -2,10 +2,9 @@
 
 import io
 import base64
-from PIL import Image
+from PIL import Image, ImageDraw
 from PIL.ExifTags import TAGS
 from io import BytesIO
-import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -71,10 +70,9 @@ def annotate_image(temp_path: str, pred_boxes: list, pred_conf: list,
     Returns:
         Base64 encoded image data URL
     """
-    img_pil = Image.open(temp_path)
-    plt.figure(figsize=(6, 6))
-    plt.imshow(img_pil)
-    ax = plt.gca()
+    # Use PIL drawing instead of matplotlib to avoid native backend issues in containers.
+    img_pil = Image.open(temp_path).convert("RGB")
+    draw = ImageDraw.Draw(img_pil)
     
     class_names_map = {
         "chokepoint": ['in', 'out'],
@@ -83,26 +81,24 @@ def annotate_image(temp_path: str, pred_boxes: list, pred_conf: list,
     class_names_local = class_names_map.get(model_type, ['object'])
     
     for i, (box, conf) in enumerate(zip(pred_boxes, pred_conf)):
-        x1, y1, x2, y2 = box
-        rect = plt.Rectangle((x1, y1), x2 - x1, y2 - y1, fill=False, color='lime', linewidth=1)
-        ax.add_patch(rect)
+        x1, y1, x2, y2 = [float(v) for v in box]
+        draw.rectangle((x1, y1, x2, y2), outline="lime", width=2)
         
         if model_type == "chokepoint" and pred_classes is not None:
-            class_idx = pred_classes[i] if i < len(pred_classes) else 0
-            label = f"{class_names_local[class_idx]} ({conf:.2f})"
+            class_idx = int(pred_classes[i]) if i < len(pred_classes) else 0
+            class_idx = class_idx if 0 <= class_idx < len(class_names_local) else 0
+            label = f"{class_names_local[class_idx]} ({float(conf):.2f})"
         else:
-            label = f"boat ({conf:.2f})"
-        
-        ax.text(x1, y1 - 2, label, color='white', fontsize=8, va='bottom', ha='left',
-                bbox=dict(facecolor='black', alpha=0.5, edgecolor='none', pad=0))
-    
-    plt.axis('off')
-    plt.title(f'Predictions')
+            label = f"boat ({float(conf):.2f})"
+
+        text_x = max(0, int(x1))
+        text_y = max(0, int(y1) - 14)
+        draw.rectangle((text_x, text_y, text_x + 170, text_y + 14), fill="black")
+        draw.text((text_x + 2, text_y + 1), label, fill="white")
     
     # Save annotated image to buffer
     buf = io.BytesIO()
-    plt.savefig(buf, format='jpeg', bbox_inches='tight', pad_inches=0)
-    plt.close()
+    img_pil.save(buf, format="JPEG")
     buf.seek(0)
     base64_data = base64.b64encode(buf.read()).decode('utf-8')
     data_url = f"data:image/jpeg;base64,{base64_data}"

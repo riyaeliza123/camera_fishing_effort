@@ -1,5 +1,5 @@
 from fastapi import FastAPI, File, UploadFile, Request, Form
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
@@ -20,13 +20,16 @@ import pandas as pd
 
 app = FastAPI()
 
+# Resolve directories relative to this file so paths work in any working directory
+BASE_DIR = Path(__file__).resolve().parent
+
 # Load configuration
 config = load_config()
 roboflow_api_key = get_roboflow_api_key(config)
 
 # Mount static files and templates
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
+app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
+templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 # Store the latest DataFrame for CSV download
 latest_df = None
@@ -35,7 +38,14 @@ latest_df = None
 @app.get("/")
 async def home(request: Request):
     """Render the main page"""
-    return templates.TemplateResponse("index.html", {"request": request})
+    try:
+        return templates.TemplateResponse("index.html", {"request": request})
+    except Exception as e:
+        print(f"Template render error on /: {e}")
+        return HTMLResponse(
+            content="<h1>Camera Fishing Effort</h1><p>App is running, but the template failed to render.</p>",
+            status_code=200,
+        )
 
 
 @app.get("/test")
@@ -165,4 +175,5 @@ async def download_csv():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    port = int(os.environ.get("PORT", "8080"))
+    uvicorn.run(app, host="0.0.0.0", port=port)

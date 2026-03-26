@@ -37,7 +37,7 @@ For detailed information, see the documentation folder:
 ```bash
 pip install -r requirements.txt
 python main.py
-# Visit http://127.0.0.1:8000
+# Visit http://127.0.0.1:8080
 ```
 
 **Production (Fly.io):**

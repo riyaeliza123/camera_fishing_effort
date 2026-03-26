@@ -7,7 +7,7 @@ from pathlib import Path
 
 def load_config():
     """Load configuration from config.toml."""
-    config_path = Path("config.toml")
+    config_path = Path(__file__).resolve().parent.parent / "config.toml"
     if config_path.exists():
         with open(config_path, "rb") as f:
             return tomllib.load(f)
